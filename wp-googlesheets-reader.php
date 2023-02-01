@@ -3,7 +3,7 @@
 /**
  * Plugin Name: WP-Google-Sheets Reader
  * Plugin URI:  https://github.com/gwannon/wp-googlesheets-reader
- * Description: Plugin que lee un Google Sheet y lo muestra como una tabla a través de un shorrtcode. Si modificamos el sheet se modifica el contenido de la tabla en nuestro WordPress. 
+ * Description: Plugin que lee un Google Sheet y lo muestra como una tabla a través de un shortcode. Si modificamos el sheet se modifica el contenido de la tabla en nuestro WordPress. 
  * Version:     1.0
  * Author:      Gwannon
  * Author URI:  https://github.com/gwannon/
