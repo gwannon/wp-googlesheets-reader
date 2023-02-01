@@ -6,4 +6,4 @@ Plugin que lee un Google Sheet y lo muestra como una tabla a través de un short
 https://www.nidup.io/blog/manipulate-google-sheets-in-php-with-api
 
 ## Uso
-[sheet spreadsheetId='Se consigue de la URl del documento' sheetName='Nombre de la pestaña que vamos a leer']
+[sheet spreadsheetid='Se consigue de la URl del documento' sheetname='Nombre de la pestaña que vamos a leer']

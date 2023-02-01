@@ -21,39 +21,91 @@
 
 /*
  * Uso
- * [sheet spreadsheetId='Se consigue de la URl del documento' sheetName='Nombre de la pestaña que vamos a leer']
+ * [sheet spreadsheetid='Se consigue de la URl del documento' sheetname='Nombre de la pestaña que vamos a leer']
  */
  
 //Shortcode ------------------
 function wpgsrShortcode($params = array(), $content = null) {
-  global $post;
   ob_start(); 
-  require __DIR__ . '/vendor/autoload.php';
+  require_once __DIR__ . '/vendor/autoload.php';
   putenv('GOOGLE_APPLICATION_CREDENTIALS=' . __DIR__ . '/service_key.json');
   $client = new Google_Client();
   $client->useApplicationDefaultCredentials();
   $client->addScope('https://www.googleapis.com/auth/spreadsheets');
   $service = new Google_Service_Sheets($client);
-  //spreadsheetId='1d_Xd87o7zLmnvAE-GyaAjlsOZFMQzrRRbV02yN7Q1Vk'
-	$spreadsheet = $service->spreadsheets->get($params['spreadsheetId']);
-	//sheetName='Eventos'
-	$response = $service->spreadsheets_values->get($params['spreadsheetId'], $params['sheetName']);
-	$values = $response->getValues(); ?>
+
+	// This script uses the method of "spreadsheets.get".
+	$sheets = $service->spreadsheets->get($params['spreadsheetid'], ["ranges" => [$params['sheetname']], "fields" => "sheets"])->getSheets();
+	
+	// Following script is a sample script for retrieving "textFormat" and "textFormatRuns".
+	$data = $sheets[0]->getData();
+	$startRow = $data[0]->getStartRow();
+	$startColumn = $data[0]->getStartColumn();
+	$rowData = $data[0]->getRowData();
+	$res = array();
+	foreach ($rowData as $i => $row) {
+			$temp = array();
+			$control = 0;
+			foreach ($row -> getValues() as $j => $value) {
+				/*echo "<pre>";
+				print_r($value['effectiveFormat']['horizontalAlignment']);
+				echo "</pre>";*/
+					/*$tempObj = [
+						"row" => $i + 1 + $startRow,
+						"column" => $j + 1 + $startColumn
+					];*/
+					if (isset($value['formattedValue']) && $value['formattedValue'] != '') {
+							$tempObj['formattedValue'] = $value -> getFormattedValue();
+							$control ++;
+					} else {
+							$tempObj['formattedValue'] = "";
+							//continue;
+					}
+					$userEnteredFormat = $value -> getUserEnteredFormat();
+					/*echo "<pre>";
+					print_r($userEnteredFormat);
+					echo "</pre>";*/
+					if (isset($userEnteredFormat['horizontalAlignment'])) {
+							$tempObj['horizontalAlignment'] = $userEnteredFormat['horizontalAlignment'];
+					} else {
+							$tempObj['horizontalAlignment'] = null;
+					}
+					if (isset($userEnteredFormat['textFormat'])) {
+							$tempObj['textFormat'] = $userEnteredFormat -> getTextFormat();
+					} else {
+							$tempObj['textFormat'] = null;
+					}
+					if (isset($value['textFormatRuns'])) {
+							$tempObj['textFormatRuns'] = $value -> getTextFormatRuns();
+					} else {
+							$tempObj['textFormatRuns'] = null;
+					}
+					if ($control > 0) array_push($temp, $tempObj);
+			}
+			if (count($temp) > 0) array_push($res, $temp);
+	}
+
+	/*echo "<pre>";
+	print_r($res);
+	echo "</pre>";*/
+	/*$spreadsheet = $service->spreadsheets->get($params['spreadsheetid'], ['includeGridData' => true]);
+	print_r ($spreadsheet);
+	$sheet = $spreadsheet->getSheets();
+	print_r ($sheet);
+	$response = $service->spreadsheets_values->get($params['spreadsheetid'], $params['sheetname'], ['valueRenderOption' => 'FORMATTED_VALUE']);
+	$values = $response->getValues();*/ ?>
 	<table border="1">
 		<thead>
-			<?php foreach ($values as $count => $tr) {
-				if($count == 0) { ?>
-					<tr>
-						<?php foreach ($tr as $td) { ?><th><?=$td;?></th><?php } ?>
-					</tr>
-				</thead>
-				<tbody>
-				<?php } else { ?>
-					<tr>
-						<?php foreach ($tr as $td) { ?><td><?=$td;?></td><?php } ?>
-					</tr>
-				<?php }
-			} ?>
+			<?php foreach ($res as $tr) { ?>
+				<tr>
+					<?php foreach ($tr as $td) { 
+						$tag = (isset($td['textFormat']['bold']) && $td['textFormat']['bold'] == 1 ? "th" : "td");
+						$align = (isset($td['horizontalAlignment']) && $td['horizontalAlignment'] != '' ? strtolower($td['horizontalAlignment']) : "left");
+						$fontstyle = (isset($td['textFormat']['italic']) && $td['textFormat']['italic'] == 1 ? "italic" : "normal");
+						?><<?=$tag?> style="text-align: <?=$align?>; font-style: <?=$fontstyle?>"><?=$td['formattedValue']?></<?=$tag?>><?php 
+					} ?>
+				</tr>
+			<?php } ?>
 		</tbody>
 	</table>
   <?php return ob_get_clean();
