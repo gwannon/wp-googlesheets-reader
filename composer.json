@@ -1,6 +1,6 @@
 {
     "require": {
-        "google/apiclient": "^2.13"
+        "google/apiclient": "^2.1"
     },
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
@@ -9,5 +9,10 @@
         "google/apiclient-services": [
             "Sheets"
         ]
+    },
+    "config": {
+            "platform": {
+                "php": "7.4.33"
+            }
     }
 }

@@ -24,10 +24,20 @@
  * [sheet spreadsheetid='Se consigue de la URl del documento' sheetname='Nombre de la pestaña que vamos a leer']
  */
  
+define('WPGSR_CACHE', 300); //300 segundos 5 minutos
+
 //Shortcode ------------------
 function wpgsrShortcode($params = array(), $content = null) {
   ob_start(); 
-  require_once __DIR__ . '/vendor/autoload.php';
+	$file = plugin_dir_path(__FILE__).'cache/'.$params['spreadsheetid'].'-'.sanitize_title($params['sheetname']).'.html';
+	if (file_exists($file)) {
+		$diff = time() - filectime($file);
+		if ($diff <= WPGSR_CACHE) { //Si es menos de 5 minutos (300 segundos) usamos el cacheo
+			return file_get_contents($file);
+		} 
+	}
+
+	require_once __DIR__ . '/vendor/autoload.php';
   putenv('GOOGLE_APPLICATION_CREDENTIALS=' . __DIR__ . '/service_key.json');
   $client = new Google_Client();
   $client->useApplicationDefaultCredentials();
@@ -108,6 +118,8 @@ function wpgsrShortcode($params = array(), $content = null) {
 			<?php } ?>
 		</tbody>
 	</table>
-  <?php return ob_get_clean();
+  <?php $html = ob_get_clean();
+	file_put_contents($file, $html); //Guardamos en cache
+	return $html;
 }
 add_shortcode('sheet', 'wpgsrShortcode');
