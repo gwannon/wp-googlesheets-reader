@@ -104,20 +104,22 @@ function wpgsrShortcode($params = array(), $content = null) {
 	print_r ($sheet);
 	$response = $service->spreadsheets_values->get($params['spreadsheetid'], $params['sheetname'], ['valueRenderOption' => 'FORMATTED_VALUE']);
 	$values = $response->getValues();*/ ?>
-	<table border="1">
-		<thead>
-			<?php foreach ($res as $tr) { ?>
-				<tr>
-					<?php foreach ($tr as $td) { 
-						$tag = (isset($td['textFormat']['bold']) && $td['textFormat']['bold'] == 1 ? "th" : "td");
-						$align = (isset($td['horizontalAlignment']) && $td['horizontalAlignment'] != '' ? strtolower($td['horizontalAlignment']) : "left");
-						$fontstyle = (isset($td['textFormat']['italic']) && $td['textFormat']['italic'] == 1 ? "italic" : "normal");
-						?><<?=$tag?> style="text-align: <?=$align?>; font-style: <?=$fontstyle?>"><?=$td['formattedValue']?></<?=$tag?>><?php 
-					} ?>
-				</tr>
-			<?php } ?>
-		</tbody>
-	</table>
+	<div style="overflow-x:auto;">
+		<table border="1">
+			<thead>
+				<?php foreach ($res as $tr) { ?>
+					<tr>
+						<?php foreach ($tr as $td) { 
+							$tag = (isset($td['textFormat']['bold']) && $td['textFormat']['bold'] == 1 ? "th" : "td");
+							$align = (isset($td['horizontalAlignment']) && $td['horizontalAlignment'] != '' ? strtolower($td['horizontalAlignment']) : "left");
+							$fontstyle = (isset($td['textFormat']['italic']) && $td['textFormat']['italic'] == 1 ? "italic" : "normal");
+							?><<?=$tag?> style="text-align: <?=$align?>; font-style: <?=$fontstyle?>"><?=$td['formattedValue']?></<?=$tag?>><?php 
+						} ?>
+					</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+	</div>
   <?php $html = ob_get_clean();
 	file_put_contents($file, $html); //Guardamos en cache
 	return $html;
