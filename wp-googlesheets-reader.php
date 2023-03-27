@@ -56,41 +56,43 @@ function wpgsrShortcode($params = array(), $content = null) {
 	foreach ($rowData as $i => $row) {
 			$temp = array();
 			$control = 0;
-			foreach ($row -> getValues() as $j => $value) {
-				/*echo "<pre>";
-				print_r($value['effectiveFormat']['horizontalAlignment']);
-				echo "</pre>";*/
-					/*$tempObj = [
-						"row" => $i + 1 + $startRow,
-						"column" => $j + 1 + $startColumn
-					];*/
-					if (isset($value['formattedValue']) && $value['formattedValue'] != '') {
-							$tempObj['formattedValue'] = $value -> getFormattedValue();
-							$control ++;
-					} else {
-							$tempObj['formattedValue'] = "";
-							//continue;
-					}
-					$userEnteredFormat = $value -> getUserEnteredFormat();
+			if(is_array($row -> getValues()) && count($row -> getValues()) > 0) {
+				foreach ($row -> getValues() as $j => $value) {
 					/*echo "<pre>";
-					print_r($userEnteredFormat);
+					print_r($value['effectiveFormat']['horizontalAlignment']);
 					echo "</pre>";*/
-					if (isset($userEnteredFormat['horizontalAlignment'])) {
-							$tempObj['horizontalAlignment'] = $userEnteredFormat['horizontalAlignment'];
-					} else {
-							$tempObj['horizontalAlignment'] = null;
-					}
-					if (isset($userEnteredFormat['textFormat'])) {
-							$tempObj['textFormat'] = $userEnteredFormat -> getTextFormat();
-					} else {
-							$tempObj['textFormat'] = null;
-					}
-					if (isset($value['textFormatRuns'])) {
-							$tempObj['textFormatRuns'] = $value -> getTextFormatRuns();
-					} else {
-							$tempObj['textFormatRuns'] = null;
-					}
-					if ($control > 0) array_push($temp, $tempObj);
+						/*$tempObj = [
+							"row" => $i + 1 + $startRow,
+							"column" => $j + 1 + $startColumn
+						];*/
+						if (isset($value['formattedValue']) && $value['formattedValue'] != '') {
+								$tempObj['formattedValue'] = $value -> getFormattedValue();
+								$control ++;
+						} else {
+								$tempObj['formattedValue'] = "";
+								//continue;
+						}
+						$userEnteredFormat = $value -> getUserEnteredFormat();
+						/*echo "<pre>";
+						print_r($userEnteredFormat);
+						echo "</pre>";*/
+						if (isset($userEnteredFormat['horizontalAlignment'])) {
+								$tempObj['horizontalAlignment'] = $userEnteredFormat['horizontalAlignment'];
+						} else {
+								$tempObj['horizontalAlignment'] = null;
+						}
+						if (isset($userEnteredFormat['textFormat'])) {
+								$tempObj['textFormat'] = $userEnteredFormat -> getTextFormat();
+						} else {
+								$tempObj['textFormat'] = null;
+						}
+						if (isset($value['textFormatRuns'])) {
+								$tempObj['textFormatRuns'] = $value -> getTextFormatRuns();
+						} else {
+								$tempObj['textFormatRuns'] = null;
+						}
+						if ($control > 0) array_push($temp, $tempObj);
+				}
 			}
 			if (count($temp) > 0) array_push($res, $temp);
 	}
